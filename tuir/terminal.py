@@ -457,6 +457,30 @@ class Terminal(object):
             text += '[{}] [{}]({})\n'.format(i, capped_link_text, link['href'])
         return text
 
+    def open_image(self, url):
+        """
+        Open a media link using chafa.
+        """
+
+        if not self.config['enable_media']:
+            self.open_browser(url)
+            return
+
+        command = "bash -c 'curl {} | chafa --watch /dev/stdin'".format(url)
+
+        with self.suspend():
+            _logger.debug('Running command: %s', command)
+            p = subprocess.Popen(
+                command, universal_newlines=True, shell=True, stdin=subprocess.PIPE)
+            sys.stdin.read(1)
+            p.terminate()
+        code = p.poll()
+        if code != 0:
+            self.show_notification(
+                'Program exited with status={0}'.format(code), style='Error')
+        _logger.debug('Ran! {}'.format(code))
+
+
     def open_link(self, url):
         """
         Open a media link using the definitions from the user's mailcap file.

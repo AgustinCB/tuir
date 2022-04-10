@@ -194,8 +194,29 @@ class SubredditPage(Page):
             url = data['permalink']
             if data.get('url_type') == 'selfpost':
                 self.config.history.add(data['url_full'])
-
         self.selected_page = self.open_submission_page(url)
+
+
+    @SubredditController.register(Command('SUBREDDIT_OPEN_IN_CHAFA'))
+    def open_image(self):
+        """
+        Open the link contained in the selected item in chafa.
+
+        If there is more than one link contained in the item, prompt the user
+        to choose which link to open.
+        """
+        data = self.get_selected_item()
+        if data['type'] == 'Submission':
+            link = data['url_full']
+            if link:
+                self.config.history.add(link)
+                self.term.open_image(link)
+        elif data['type'] == 'Comment':
+            link = data['url_full']
+            if link:
+                self.term.open_image(link)
+        else:
+            self.term.flash()
 
     @SubredditController.register(Command('SUBREDDIT_OPEN_IN_BROWSER'))
     def open_link(self):

@@ -117,6 +117,27 @@ class SubmissionPage(Page):
         """
         self.active = False
 
+    @SubmissionController.register(Command('SUBMISSION_OPEN_IN_CHAFA'))
+    def open_image(self):
+        """
+        Open the link contained in the selected item in chafa.
+
+        If there is more than one link contained in the item, prompt the user
+        to choose which link to open.
+        """
+        data = self.get_selected_item()
+        if data['type'] == 'Submission':
+            link = self.prompt_and_select_link()
+            if link:
+                self.config.history.add(link)
+                self.term.open_image(link)
+        elif data['type'] == 'Comment':
+            link = self.prompt_and_select_link()
+            if link:
+                self.term.open_image(link)
+        else:
+            self.term.flash()
+
     @SubmissionController.register(Command('SUBMISSION_OPEN_IN_BROWSER'))
     def open_link(self):
         """
