@@ -196,11 +196,31 @@ class SubredditPage(Page):
                 self.config.history.add(data['url_full'])
         self.selected_page = self.open_submission_page(url)
 
+    @SubredditController.register(Command('SUBREDDIT_DOWNLOAD'))
+    def download_image(self):
+        """
+        Download the link contained in the selected item in chafa.
+
+        If there is more than one link contained in the item, prompt the user
+        to choose which link to open.
+        """
+        data = self.get_selected_item()
+        if data['type'] == 'Submission':
+            link = data['url_full']
+            if link:
+                self.config.history.add(link)
+                self.term.download_content(link)
+        elif data['type'] == 'Comment':
+            link = data['url_full']
+            if link:
+                self.term.download_content(link)
+        else:
+            self.term.flash()
 
     @SubredditController.register(Command('SUBREDDIT_OPEN_IN_CHAFA'))
     def open_image(self):
         """
-        Open the link contained in the selected item in chafa.
+        Open the image contained in the selected item in chafa.
 
         If there is more than one link contained in the item, prompt the user
         to choose which link to open.

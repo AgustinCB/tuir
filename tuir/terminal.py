@@ -457,11 +457,26 @@ class Terminal(object):
             text += '[{}] [{}]({})\n'.format(i, capped_link_text, link['href'])
         return text
 
+    def download_content(self, url):
+        """
+        Download content of the url in ~/Downloads
+        """
+        filename = url.split("/")[-1]
+        command = "bash -c \"/usr/bin/curl -o ~/Downloads/{} '{}' 2>/dev/null\"".format(filename, url)
+        _logger.debug('Running command: %s', command)
+        with self.loader('Downloading content...', catch_exception=True):
+            p = subprocess.Popen(command, universal_newlines=True, shell=True)
+            p.wait()
+            code = p.poll()
+            if code != 0:
+                self.show_notification(
+                    'Program exited with status={0}'.format(code), style='Error')
+        self.show_notification('Content Downloaded!')
+
     def open_image(self, url):
         """
         Open a media link using chafa.
         """
-
         if not self.config['enable_media']:
             self.open_browser(url)
             return
@@ -471,7 +486,7 @@ class Terminal(object):
         with self.suspend():
             _logger.debug('Running command: %s', command)
             p = subprocess.Popen(
-                command, universal_newlines=True, shell=True, stdin=subprocess.PIPE)
+                command, universal_newlines=True, shell=True)
             sys.stdin.read(1)
             p.terminate()
         code = p.poll()
@@ -479,7 +494,6 @@ class Terminal(object):
             self.show_notification(
                 'Program exited with status={0}'.format(code), style='Error')
         _logger.debug('Ran! {}'.format(code))
-
 
     def open_link(self, url):
         """
