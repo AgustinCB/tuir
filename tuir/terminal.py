@@ -474,6 +474,23 @@ class Terminal(object):
                     'Program exited with status={0}'.format(code), style='Error')
         self.show_notification('Content Downloaded!')
 
+    def open_reader(self, url):
+        """
+        Open in reader
+        """
+        command = [self.config['reader_command'], url]
+
+        with self.suspend():
+            _logger.debug('Running command: %s', command)
+            p = subprocess.Popen(command)
+            p.wait()
+            os.system('clear')
+        code = p.poll()
+        if code != None and code != 0:
+            self.show_notification(
+                'Program exited with status={0}'.format(code), style='Error')
+        _logger.debug('Ran! {}'.format(code))
+
     def open_content(self, url, data):
         """
         Open a media link using chafa.

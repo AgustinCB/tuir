@@ -238,6 +238,27 @@ class SubredditPage(Page):
         else:
             self.term.flash()
 
+    @SubredditController.register(Command('SUBREDDIT_OPEN_IN_READER'))
+    def open_reader(self):
+        """
+        Open the url contained in the selected item in the reader.
+
+        If there is more than one link contained in the item, prompt the user
+        to choose which link to open.
+        """
+        data = self.get_selected_item()
+        if data['type'] == 'Submission':
+            link = data['url_full']
+            if link:
+                self.config.history.add(link)
+                self.term.open_reader(link)
+        elif data['type'] == 'Comment':
+            link = data['url_full']
+            if link:
+                self.term.open_reader(link)
+        else:
+            self.term.flash()
+
     @SubredditController.register(Command('SUBREDDIT_OPEN_IN_BROWSER'))
     def open_link(self):
         """
