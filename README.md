@@ -1,5 +1,9 @@
 <h1 align="center">Terminal UI for Reddit (TUIR)</h1>
 
+**This is a fork of [ajak/tuir](https://gitlab.com/ajak/tuir) with support for opening images and videos in the terminal**
+
+**While the code works for my use case, I will put the minimal maintenance necessary to make it work for my work flow. If you are looking for something stable, I strongly recommend using the upstream service.**
+
 <p align="center">
 A text-based interface (TUI) to view and interact with Reddit from your terminal.<br>
 </p>
