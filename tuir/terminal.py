@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import os
 import re
+import signal
 import sys
 import time
 import shlex
@@ -473,7 +474,7 @@ class Terminal(object):
                     'Program exited with status={0}'.format(code), style='Error')
         self.show_notification('Content Downloaded!')
 
-    def open_image(self, url):
+    def open_content(self, url, data):
         """
         Open a media link using chafa.
         """
@@ -481,16 +482,38 @@ class Terminal(object):
             self.open_browser(url)
             return
 
-        command = "bash -c 'curl {} | chafa --watch /dev/stdin'".format(url)
+        content_type = None
+        for parser in mime_parsers.parsers:
+            if parser.pattern.match(url):
+                _, content_type = parser.get_mimetype(url)
+        if content_type == None and not url.startswith("https://v.redd.it"):
+            self.show_notification(
+                "Can't identify content type for {}".format(url), style='Error')
+            return
+        elif content_type == None:
+            command = "mpv --vo=kitty \"{}/HLS_360.ts\"".format(url)
+            category = "video"
+        else:
+            category = content_type.split("/")[0]
+            if category == "image":
+                command = "bash -c 'curl \"{}\" 2>/dev/null | chafa --watch /dev/stdin'".format(url)
+            else:
+                self.show_notification(
+                    "Can't show content {}".format(content_type), style='Error')
+                return
 
         with self.suspend():
             _logger.debug('Running command: %s', command)
             p = subprocess.Popen(
                 command, universal_newlines=True, shell=True)
             sys.stdin.read(1)
-            p.terminate()
+            if category == "image":
+                p.terminate()
+            else:
+                os.kill(p.pid, signal.SIGKILL)
+                os.system('clear')
         code = p.poll()
-        if code != 0:
+        if code != None and code != 0:
             self.show_notification(
                 'Program exited with status={0}'.format(code), style='Error')
         _logger.debug('Ran! {}'.format(code))

@@ -217,8 +217,8 @@ class SubredditPage(Page):
         else:
             self.term.flash()
 
-    @SubredditController.register(Command('SUBREDDIT_OPEN_IN_CHAFA'))
-    def open_image(self):
+    @SubredditController.register(Command('SUBREDDIT_OPEN_CONTENT'))
+    def open_content(self):
         """
         Open the image contained in the selected item in chafa.
 
@@ -230,11 +230,11 @@ class SubredditPage(Page):
             link = data['url_full']
             if link:
                 self.config.history.add(link)
-                self.term.open_image(link)
+                self.term.open_content(link, data)
         elif data['type'] == 'Comment':
             link = data['url_full']
             if link:
-                self.term.open_image(link)
+                self.term.open_content(link, data)
         else:
             self.term.flash()
 
